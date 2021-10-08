@@ -5,3 +5,115 @@ body {
 p {
   color: brown !important;
 }
+
+h1 {
+  font-size: 5rem;
+  line-height: normal;
+  /* letter-spacing: 0.5cm; */
+}
+
+#xyz {
+  /* width: 331px;
+  height: 438px;
+  position: fixed;
+  right: 58px;
+  bottom: 58px;
+  background: #fdfdfd;
+  border: 1px solid #b1b1b1;
+  font-family: Roboto;
+  font-style: normal;
+  box-sizing: border-box;
+  border-radius: 10px;
+  overflow: hidden;
+  user-select: none; */
+}
+
+/* #xyz .top {
+  width: 100%;
+  height: 63px;
+  background-color: #ea6b2d;
+  padding: 0 17px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  color: white;
+} */
+
+/* #xyz .top .title {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+} */
+
+/* #xyz .top .icon {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+} */
+
+/* #xyz .content {
+  width: 100%;
+  padding: 17px;
+  box-sizing: border-box;
+}
+
+#xyz .content .content-container {
+  border: 1px solid #b1b1b1;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+#xyz .content .content-container .row {
+  display: flex;
+} */
+
+/* #xyz .content .content-container .row .item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  height: 93px;
+  border-bottom: 1px solid #b1b1b1;
+  border-right: 1px solid #b1b1b1;
+  box-sizing: border-box;
+}
+
+#xyz .content .content-container .row .item.no-right-border {
+  border-right: none;
+}
+
+#xyz .content .content-container .row .item.no-bottom-border {
+  border-bottom: none;
+}
+
+#xyz .content .content-container .row .item .icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+#xyz .content .content-container .row .item .text {
+  font-size: 13px;
+  line-height: 15px;
+} */
+
+/* #xyz .reset {
+  padding: 0 17px;
+}
+
+#xyz .reset .button {
+  height: 49px;
+  background: #ea6b2d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  cursor: pointer;
+  color: white;
+  font-size: 18px;
+} */
