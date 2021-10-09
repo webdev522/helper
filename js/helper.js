@@ -1,9 +1,31 @@
 const APP_NAME = "helper.js";
-const SETTING_MENU_ID = "xyz";
+const SETTING_MENU_ID = "setting-menu";
 const SETTING_USER_ID = "setting-user";
-const APP_FONTS = ["Roboto", "Source+Sans+Pro"];
+const APP_FONTS = ["", "Roboto", "Source+Sans+Pro"];
+const ZOOM_SETTINGS = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3];
+
 let elementStyles = {};
-let isApplied = false;
+
+// color setting
+let bgColor = undefined;
+let textColor = undefined;
+let isColorApplied = false;
+
+// font setting
+let font = undefined;
+let selectedFontIndex = 0;
+
+// font size setting
+let fontSize = undefined;
+let selectedFontSizeIndex = 0;
+
+// line height setting
+let lineHeight = undefined;
+let selectedLineHeightIndex = 0;
+
+// letter spacing setting
+let letterSpacing = undefined;
+let selectedLetterSpacingIndex = 0;
 
 const ICON_USER = `
 <svg width="43" height="43" viewBox="0 0 86 86" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -27,7 +49,7 @@ const HTML_SETTING_MENU = `
     <div style="border: 1px solid #b1b1b1; border-radius: 5px; box-sizing: border-box;">
       <div style="display: flex;">
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 50%; height: 93px; border-bottom: 1px solid #b1b1b1; border-right: 1px solid #b1b1b1; box-sizing: border-box;">
-          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;">
+          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('fontSize')">
             <svg width="36" height="23" viewBox="0 0 73 46" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M24.2441 18.1133H14.1895V46H10.0859V18.1133H0.0527344V14.7188H24.2441V18.1133ZM72.0273 5.4375H57.4023V46H51.4336V5.4375H36.8398V0.5H72.0273V5.4375Z" fill="black"/>
             </svg>
@@ -37,7 +59,7 @@ const HTML_SETTING_MENU = `
           </div>
         </div>
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 50%; height: 93px; border-bottom: 1px solid #b1b1b1; box-sizing: border-box;">
-          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;">
+          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('letterSpacing')">
             <svg width="15" height="17" viewBox="0 0 31 35" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.1484 26.0938H7.85156L4.64062 35H0L13.0312 0.875H16.9688L30.0234 35H25.4062L22.1484 26.0938ZM9.21094 22.3906H20.8125L15 6.42969L9.21094 22.3906Z" fill="black"/>
             </svg>
@@ -49,7 +71,7 @@ const HTML_SETTING_MENU = `
       </div>
       <div style="display: flex;">
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 50%; height: 93px; border-bottom: 1px solid #b1b1b1; border-right: 1px solid #b1b1b1; box-sizing: border-box;">
-          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;">
+          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('font')">
             <svg width="27" height="18" viewBox="0 0 55 36" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.8047 26.0938H8.50781L5.29688 35H0.65625L13.6875 0.875H17.625L30.6797 35H26.0625L22.8047 26.0938ZM9.86719 22.3906H21.4688L15.6562 6.42969L9.86719 22.3906ZM50.25 35C50 34.5 49.7969 33.6094 49.6406 32.3281C47.625 34.4219 45.2188 35.4688 42.4219 35.4688C39.9219 35.4688 37.8672 34.7656 36.2578 33.3594C34.6641 31.9375 33.8672 30.1406 33.8672 27.9688C33.8672 25.3281 34.8672 23.2812 36.8672 21.8281C38.8828 20.3594 41.7109 19.625 45.3516 19.625H49.5703V17.6328C49.5703 16.1172 49.1172 14.9141 48.2109 14.0234C47.3047 13.1172 45.9688 12.6641 44.2031 12.6641C42.6562 12.6641 41.3594 13.0547 40.3125 13.8359C39.2656 14.6172 38.7422 15.5625 38.7422 16.6719H34.3828C34.3828 15.4062 34.8281 14.1875 35.7188 13.0156C36.625 11.8281 37.8438 10.8906 39.375 10.2031C40.9219 9.51562 42.6172 9.17188 44.4609 9.17188C47.3828 9.17188 49.6719 9.90625 51.3281 11.375C52.9844 12.8281 53.8438 14.8359 53.9062 17.3984V29.0703C53.9062 31.3984 54.2031 33.25 54.7969 34.625V35H50.25ZM43.0547 31.6953C44.4141 31.6953 45.7031 31.3438 46.9219 30.6406C48.1406 29.9375 49.0234 29.0234 49.5703 27.8984V22.6953H46.1719C40.8594 22.6953 38.2031 24.25 38.2031 27.3594C38.2031 28.7188 38.6562 29.7812 39.5625 30.5469C40.4688 31.3125 41.6328 31.6953 43.0547 31.6953Z" fill="black"/>
             </svg>
@@ -59,7 +81,7 @@ const HTML_SETTING_MENU = `
           </div>
         </div>
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 50%; height: 93px; border-bottom: 1px solid #b1b1b1; box-sizing: border-box;">
-          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;">
+          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('lineHeight')">
             <svg width="15" height="17" viewBox="0 0 31 35" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.1484 26.0938H7.85156L4.64062 35H0L13.0312 0.875H16.9688L30.0234 35H25.4062L22.1484 26.0938ZM9.21094 22.3906H20.8125L15 6.42969L9.21094 22.3906Z" fill="black"/>
             </svg>
@@ -83,7 +105,7 @@ const HTML_SETTING_MENU = `
           </div>
         </div>
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 50%; height: 93px; box-sizing: border-box;">
-          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;">
+          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('color')">
             <svg width="30" height="30" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M0 7.5C0 5.51088 0.790176 3.60322 2.1967 2.1967C3.60322 0.790176 5.51088 0 7.5 0L37.5 0C39.4891 0 41.3968 0.790176 42.8033 2.1967C44.2098 3.60322 45 5.51088 45 7.5V15H52.5C54.4891 15 56.3968 15.7902 57.8033 17.1967C59.2098 18.6032 60 20.5109 60 22.5V52.5C60 54.4891 59.2098 56.3968 57.8033 57.8033C56.3968 59.2098 54.4891 60 52.5 60H22.5C20.5109 60 18.6032 59.2098 17.1967 57.8033C15.7902 56.3968 15 54.4891 15 52.5V45H7.5C5.51088 45 3.60322 44.2098 2.1967 42.8033C0.790176 41.3968 0 39.4891 0 37.5V7.5ZM7.5 3.75C6.50544 3.75 5.55161 4.14509 4.84835 4.84835C4.14509 5.55161 3.75 6.50544 3.75 7.5V37.5C3.75 38.4946 4.14509 39.4484 4.84835 40.1516C5.55161 40.8549 6.50544 41.25 7.5 41.25H37.5C38.4946 41.25 39.4484 40.8549 40.1516 40.1516C40.8549 39.4484 41.25 38.4946 41.25 37.5V7.5C41.25 6.50544 40.8549 5.55161 40.1516 4.84835C39.4484 4.14509 38.4946 3.75 37.5 3.75H7.5Z" fill="black"/>
             </svg>
@@ -96,7 +118,7 @@ const HTML_SETTING_MENU = `
     </div>
   </div>
   <div style="padding: 0 17px;">
-    <div style="height: 49px; background: #ea6b2d; display: flex; justify-content: center; align-items: center; border-radius: 5px; cursor: pointer; color: white; font-size: 18px;">
+    <div style="height: 49px; background: #ea6b2d; display: flex; justify-content: center; align-items: center; border-radius: 5px; cursor: pointer; color: white; font-size: 18px;" onclick="resetStyle()">
       Reset All
     </div>
   </div>
@@ -106,6 +128,8 @@ const HTML_SETTING_MENU = `
 
 window.addEventListener("DOMContentLoaded", function () {
   // applyStyle();
+  catchStyles();
+  initElements();
   addFonts();
   createMenu();
   test();
@@ -129,8 +153,94 @@ function test() {
   // console.log(size, lineHeight, letterSpacing);
 }
 
+function catchStyles() {
+  const scripts = document.getElementsByTagName("script");
+
+  if (!scripts || !scripts.length) {
+    return;
+  }
+
+  let name;
+
+  for (const s of scripts) {
+    const src = s.src;
+    if (src.includes(APP_NAME)) {
+      name = src.split("?")[1];
+    }
+  }
+
+  if (!name) {
+    return;
+  }
+
+  const options = JSON.parse(
+    '{"' + name.replace(/&/g, '","').replace(/=/g, '":"') + '"}',
+    function (key, value) {
+      return key === "" ? value : decodeURIComponent(value);
+    }
+  );
+
+  const { bg, text } = options;
+
+  const hexRegex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
+  const rgbRegex =
+    /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/i;
+
+  // set background of body
+  bgColor = undefined;
+
+  if (bg && bg.match(hexRegex)) {
+    bgColor = bg;
+  }
+
+  if (bg && bg.match(rgbRegex)) {
+    bgColor = bg;
+  }
+
+  // set color of all elements
+  textColor = undefined;
+
+  if (text && text.match(hexRegex)) {
+    textColor = text;
+  }
+
+  if (text && text.match(rgbRegex)) {
+    textColor = text;
+  }
+
+  console.log(bgColor, textColor);
+}
+
+function initElements() {
+  const elements = document.body.getElementsByTagName("*");
+
+  for (const element of elements) {
+    const uuid = uuidv4();
+    element.setAttribute("data-uuid", uuid);
+
+    const { cssText } = element.style;
+    if (cssText) {
+      const styles = cssText.split(";");
+      const obj = {};
+      for (const style of styles) {
+        if (!style) continue;
+        const t = style.split(":");
+        const property = t[0].trim();
+        const value = t[1].trim();
+        if (property && value) {
+          obj[property] = value;
+        }
+      }
+      elementStyles[uuid] = obj;
+    }
+  }
+
+  console.log(elementStyles);
+}
+
 function addFonts() {
   for (const font of APP_FONTS) {
+    if (!font) continue;
     const link = document.createElement("link");
     link.setAttribute("rel", "stylesheet");
     link.setAttribute("type", "text/css");
@@ -200,143 +310,127 @@ function hideMenu() {
 }
 
 function applyStyle() {
-  const scripts = document.getElementsByTagName("script");
-
-  if (!scripts || !scripts.length) {
-    console.log("exit");
-    return;
-  }
-
-  let name;
-
-  for (const s of scripts) {
-    const src = s.src;
-    if (src.includes(APP_NAME)) {
-      name = src.split("?")[1];
-    }
-  }
-
-  if (!name) {
-    return;
-  }
-
-  const options = JSON.parse(
-    '{"' + name.replace(/&/g, '","').replace(/=/g, '":"') + '"}',
-    function (key, value) {
-      return key === "" ? value : decodeURIComponent(value);
-    }
-  );
-
-  console.log(options);
-
-  const { bg, text } = options;
-
-  const hexRegex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
-  const rgbRegex =
-    /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/i;
-
-  // set background of body
-  let bgColor = null;
-
-  if (bg && bg.match(hexRegex)) {
-    bgColor = bg;
-  }
-
-  if (bg && bg.match(rgbRegex)) {
-    bgColor = bg;
-  }
-
-  // set color of all elements
-  let textColor = null;
-
-  if (text && text.match(hexRegex)) {
-    textColor = text;
-  }
-
-  if (text && text.match(rgbRegex)) {
-    textColor = text;
-  }
-
-  if (!bgColor || !textColor) {
-    return;
-  }
-
-  elementStyles = {};
-
-  if (bgColor) {
-    const { cssText } = document.body.style;
-    if (cssText) {
-      const uuid = uuidv4();
-      document.body.setAttribute("data-uuid", uuid);
-      elementStyles[uuid] = cssText;
-    }
-
-    document.body.setAttribute(
-      "style",
-      `background-color: ${bgColor} !important`
-    );
-  }
-
   const elements = document.body.getElementsByTagName("*");
 
   for (const element of elements) {
-    const id = element.getAttribute("id");
-    if (id === SETTING_USER_ID || id === SETTING_MENU_ID) {
-      continue;
+    if (!element.dataset.uuid) continue;
+
+    const { uuid } = element.dataset;
+    if (selectedFontIndex > 0) {
+      const newFont = APP_FONTS[selectedFontIndex].replace(/\+/g, " ");
+      element.style.setProperty("font-family", newFont, "important");
+    } else {
+      if (uuid && elementStyles[uuid] && elementStyles[uuid]["font-family"]) {
+        const value = elementStyles[uuid]["font-family"];
+        if (value && value.includes(" !important")) {
+          element.style.setProperty(
+            "font-family",
+            value.replace(/\s\!important/g, ""),
+            "important"
+          );
+        } else {
+          element.style.setProperty("font-family", value);
+        }
+      } else {
+        element.style.removeProperty("font-family");
+      }
     }
 
-    const { cssText } = element.style;
-    if (cssText) {
-      const uuid = uuidv4();
-      element.setAttribute("data-uuid", uuid);
-      elementStyles[uuid] = cssText;
-    }
+    if (isColorApplied) {
+      if (bgColor) {
+        element.style.setProperty("background-color", bgColor, "important");
+      }
+      if (textColor) {
+        element.style.setProperty("color", textColor, "important");
+      }
+    } else {
+      if (
+        bgColor &&
+        uuid &&
+        elementStyles[uuid] &&
+        elementStyles[uuid]["background-color"]
+      ) {
+        const value = elementStyles[uuid]["background-color"];
+        if (value && value.includes(" !important")) {
+          element.style.setProperty(
+            "background-color",
+            value.replace(/\s\!important/g, ""),
+            "important"
+          );
+        } else {
+          element.style.setProperty("background-color", value);
+        }
+      } else {
+        element.style.removeProperty("background-color");
+      }
 
-    element.style.cssText = `
-      ${textColor ? "color: " + textColor + " !important;" : ""}
-      ${bgColor ? "background-color: " + bgColor + " !important;" : ""}
-    `;
+      if (
+        textColor &&
+        uuid &&
+        elementStyles[uuid] &&
+        elementStyles[uuid]["color"]
+      ) {
+        const value = elementStyles[uuid]["color"];
+        if (value && value.includes(" !important")) {
+          element.style.setProperty(
+            "color",
+            value.replace(/\s\!important/g, ""),
+            "important"
+          );
+        } else {
+          element.style.setProperty("color", value);
+        }
+      } else {
+        element.style.removeProperty("color");
+      }
+    }
   }
-
-  isApplied = true;
 }
 
 // reset style
 function resetStyle() {
-  if (!isApplied) return;
+  return;
+  // color setting
+  bgColor = undefined;
+  textColor = undefined;
+  isColorApplied = false;
+
+  // font setting
+  font = undefined;
+  selectedFontIndex = 0;
+
+  // font size setting
+  fontSize = undefined;
+  selectedFontSizeIndex = 0;
+
+  // line height setting
+  lineHeight = undefined;
+  selectedLineHeightIndex = 0;
+
+  // letter spacing setting
+  letterSpacing = undefined;
+  selectedLetterSpacingIndex = 0;
 
   const elements = document.body.getElementsByTagName("*");
 
   for (const element of elements) {
-    const id = element.getAttribute("id");
-    if (id === SETTING_USER_ID || id === SETTING_MENU_ID) {
-      continue;
-    }
     const { uuid } = element.dataset;
-    const oldStyle = elementStyles[uuid];
-
-    if (uuid && oldStyle) {
-      element.setAttribute("style", oldStyle);
-      delete elementStyles[uuid];
-      element.removeAttribute("data-uuid");
-    } else {
-      element.removeAttribute("style");
+    if (uuid) {
+      const oldStyle = elementStyles[uuid];
+      if (oldStyle) {
+        const keys = Object.keys(oldStyle);
+        let styles = [];
+        for (let i = 0; i < keys.length; i++) {
+          const value = oldStyle[keys[i]];
+          styles.push(keys[i] + ": " + value);
+        }
+        console.log(styles);
+        element.style = styles.join(";");
+      } else {
+        element.removeAttribute("style");
+      }
     }
   }
-
-  // reset body
-  const { uuid } = document.body.dataset;
-  const oldStyle = elementStyles[uuid];
-
-  if (uuid && oldStyle) {
-    document.body.style.cssText = oldStyle;
-    delete elementStyles[uuid];
-    document.body.removeAttribute("data-uuid");
-  } else {
-    element.removeAttribute("style");
-  }
-
-  isApplied = false;
 }
 
 // gen uuid v4
@@ -347,4 +441,28 @@ function uuidv4() {
       (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
     ).toString(16)
   );
+}
+
+// update style
+function settingClickHandle(prop) {
+  if (prop === "font") {
+    selectedFontIndex = (selectedFontIndex + 1) % APP_FONTS.length;
+    console.log(selectedFontIndex);
+  } else if (prop === "fontSize") {
+    selectedFontSizeIndex = (selectedFontSizeIndex + 1) % ZOOM_SETTINGS.length;
+    console.log(selectedFontSizeIndex);
+  } else if (prop === "letterSpacing") {
+    selectedLetterSpacingIndex =
+      (selectedLetterSpacingIndex + 1) % ZOOM_SETTINGS.length;
+    console.log(selectedLetterSpacingIndex);
+  } else if (prop === "lineHeight") {
+    selectedLineHeightIndex =
+      (selectedLineHeightIndex + 1) % ZOOM_SETTINGS.length;
+    console.log(selectedLineHeightIndex);
+  } else if (prop === "color") {
+    isColorApplied = !isColorApplied;
+    console.log(isColorApplied);
+  }
+
+  applyStyle();
 }
