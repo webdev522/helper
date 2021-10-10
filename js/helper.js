@@ -49,7 +49,7 @@ const HTML_SETTING_MENU = `
     <div style="border: 1px solid #b1b1b1; border-radius: 5px; box-sizing: border-box;">
       <div style="display: flex;">
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 50%; height: 93px; border-bottom: 1px solid #b1b1b1; border-right: 1px solid #b1b1b1; box-sizing: border-box;">
-          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('fontSize')">
+          <div id="icon-size" style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('fontSize')">
             <svg width="36" height="23" viewBox="0 0 73 46" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M24.2441 18.1133H14.1895V46H10.0859V18.1133H0.0527344V14.7188H24.2441V18.1133ZM72.0273 5.4375H57.4023V46H51.4336V5.4375H36.8398V0.5H72.0273V5.4375Z" fill="black"/>
             </svg>
@@ -218,6 +218,14 @@ function initElements() {
     const uuid = uuidv4();
     element.setAttribute("data-uuid", uuid);
 
+    const size = parseInt(
+      window
+        .getComputedStyle(element, null)
+        .getPropertyValue("font-size")
+        .replace(/px/g, ""),
+      10
+    );
+
     const { cssText } = element.style;
     if (cssText) {
       const styles = cssText.split(";");
@@ -231,11 +239,17 @@ function initElements() {
           obj[property] = value;
         }
       }
+
+      obj["custom-font-size"] = size + "px";
       elementStyles[uuid] = obj;
+    } else {
+      elementStyles[uuid] = {
+        "custom-font-size": size + "px",
+      };
     }
   }
 
-  // console.log(elementStyles);
+  console.log(elementStyles);
 }
 
 function addFonts() {
@@ -332,7 +346,7 @@ function applyStyle() {
       const newFont = APP_FONTS[selectedFontIndex].replace(/\+/g, " ");
       element.style.setProperty("font-family", newFont, "important");
     } else {
-      if (uuid && elementStyles[uuid] && elementStyles[uuid]["font-family"]) {
+      if (uuid && elementStyles[uuid]["font-family"]) {
         const value = elementStyles[uuid]["font-family"];
         if (value && value.includes(" !important")) {
           element.style.setProperty(
@@ -360,12 +374,7 @@ function applyStyle() {
         element.style.setProperty("color", textColor, "important");
       }
     } else {
-      if (
-        bgColor &&
-        uuid &&
-        elementStyles[uuid] &&
-        elementStyles[uuid]["background-color"]
-      ) {
+      if (bgColor && uuid && elementStyles[uuid]["background-color"]) {
         const value = elementStyles[uuid]["background-color"];
         if (value && value.includes(" !important")) {
           element.style.setProperty(
@@ -380,12 +389,7 @@ function applyStyle() {
         element.style.removeProperty("background-color");
       }
 
-      if (
-        textColor &&
-        uuid &&
-        elementStyles[uuid] &&
-        elementStyles[uuid]["color"]
-      ) {
+      if (textColor && uuid && elementStyles[uuid]["color"]) {
         const value = elementStyles[uuid]["color"];
         if (value && value.includes(" !important")) {
           element.style.setProperty(
@@ -402,6 +406,17 @@ function applyStyle() {
     }
 
     updateIconStyle(document.getElementById("icon-color"), isColorApplied);
+
+    const newSize =
+      parseInt(elementStyles[uuid]["custom-font-size"].replace(/px/g, ""), 10) *
+      ZOOM_SETTINGS[selectedFontSizeIndex];
+
+    // console.log(size, newSize);
+    element.style.setProperty("font-size", newSize + "px", "important");
+    updateIconStyle(
+      document.getElementById("icon-size"),
+      selectedFontSizeIndex > 0
+    );
   }
 }
 
@@ -431,11 +446,16 @@ function resetStyle() {
   for (const element of elements) {
     const { uuid } = element.dataset;
     if (uuid) {
+      element.removeAttribute("style");
       const oldStyle = elementStyles[uuid];
       if (oldStyle) {
         const keys = Object.keys(oldStyle);
+
         for (let i = 0; i < keys.length; i++) {
+          if (keys[i].startsWith("custom-")) continue;
+
           const value = oldStyle[keys[i]];
+
           if (value && value.includes(" !important")) {
             element.style.setProperty(
               keys[i],
@@ -446,11 +466,13 @@ function resetStyle() {
             element.style.setProperty(keys[i], value);
           }
         }
-      } else {
-        element.removeAttribute("style");
       }
     }
   }
+
+  updateIconStyle(document.getElementById("icon-font"), false);
+  updateIconStyle(document.getElementById("icon-color"), false);
+  updateIconStyle(document.getElementById("icon-size"), false);
 }
 
 // gen uuid v4
@@ -469,7 +491,6 @@ function settingClickHandle(prop) {
     selectedFontIndex = (selectedFontIndex + 1) % APP_FONTS.length;
   } else if (prop === "fontSize") {
     selectedFontSizeIndex = (selectedFontSizeIndex + 1) % ZOOM_SETTINGS.length;
-    console.log(selectedFontSizeIndex);
   } else if (prop === "letterSpacing") {
     selectedLetterSpacingIndex =
       (selectedLetterSpacingIndex + 1) % ZOOM_SETTINGS.length;
