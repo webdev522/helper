@@ -71,7 +71,7 @@ const HTML_SETTING_MENU = `
       </div>
       <div style="display: flex;">
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 50%; height: 93px; border-bottom: 1px solid #b1b1b1; border-right: 1px solid #b1b1b1; box-sizing: border-box;">
-          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('font')">
+          <div id="icon-font" style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('font')">
             <svg width="27" height="18" viewBox="0 0 55 36" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.8047 26.0938H8.50781L5.29688 35H0.65625L13.6875 0.875H17.625L30.6797 35H26.0625L22.8047 26.0938ZM9.86719 22.3906H21.4688L15.6562 6.42969L9.86719 22.3906ZM50.25 35C50 34.5 49.7969 33.6094 49.6406 32.3281C47.625 34.4219 45.2188 35.4688 42.4219 35.4688C39.9219 35.4688 37.8672 34.7656 36.2578 33.3594C34.6641 31.9375 33.8672 30.1406 33.8672 27.9688C33.8672 25.3281 34.8672 23.2812 36.8672 21.8281C38.8828 20.3594 41.7109 19.625 45.3516 19.625H49.5703V17.6328C49.5703 16.1172 49.1172 14.9141 48.2109 14.0234C47.3047 13.1172 45.9688 12.6641 44.2031 12.6641C42.6562 12.6641 41.3594 13.0547 40.3125 13.8359C39.2656 14.6172 38.7422 15.5625 38.7422 16.6719H34.3828C34.3828 15.4062 34.8281 14.1875 35.7188 13.0156C36.625 11.8281 37.8438 10.8906 39.375 10.2031C40.9219 9.51562 42.6172 9.17188 44.4609 9.17188C47.3828 9.17188 49.6719 9.90625 51.3281 11.375C52.9844 12.8281 53.8438 14.8359 53.9062 17.3984V29.0703C53.9062 31.3984 54.2031 33.25 54.7969 34.625V35H50.25ZM43.0547 31.6953C44.4141 31.6953 45.7031 31.3438 46.9219 30.6406C48.1406 29.9375 49.0234 29.0234 49.5703 27.8984V22.6953H46.1719C40.8594 22.6953 38.2031 24.25 38.2031 27.3594C38.2031 28.7188 38.6562 29.7812 39.5625 30.5469C40.4688 31.3125 41.6328 31.6953 43.0547 31.6953Z" fill="black"/>
             </svg>
@@ -105,7 +105,7 @@ const HTML_SETTING_MENU = `
           </div>
         </div>
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 50%; height: 93px; box-sizing: border-box;">
-          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('color')">
+          <div id="icon-color" style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('color')">
             <svg width="30" height="30" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M0 7.5C0 5.51088 0.790176 3.60322 2.1967 2.1967C3.60322 0.790176 5.51088 0 7.5 0L37.5 0C39.4891 0 41.3968 0.790176 42.8033 2.1967C44.2098 3.60322 45 5.51088 45 7.5V15H52.5C54.4891 15 56.3968 15.7902 57.8033 17.1967C59.2098 18.6032 60 20.5109 60 22.5V52.5C60 54.4891 59.2098 56.3968 57.8033 57.8033C56.3968 59.2098 54.4891 60 52.5 60H22.5C20.5109 60 18.6032 59.2098 17.1967 57.8033C15.7902 56.3968 15 54.4891 15 52.5V45H7.5C5.51088 45 3.60322 44.2098 2.1967 42.8033C0.790176 41.3968 0 39.4891 0 37.5V7.5ZM7.5 3.75C6.50544 3.75 5.55161 4.14509 4.84835 4.84835C4.14509 5.55161 3.75 6.50544 3.75 7.5V37.5C3.75 38.4946 4.14509 39.4484 4.84835 40.1516C5.55161 40.8549 6.50544 41.25 7.5 41.25H37.5C38.4946 41.25 39.4484 40.8549 40.1516 40.1516C40.8549 39.4484 41.25 38.4946 41.25 37.5V7.5C41.25 6.50544 40.8549 5.55161 40.1516 4.84835C39.4484 4.14509 38.4946 3.75 37.5 3.75H7.5Z" fill="black"/>
             </svg>
@@ -235,7 +235,7 @@ function initElements() {
     }
   }
 
-  console.log(elementStyles);
+  // console.log(elementStyles);
 }
 
 function addFonts() {
@@ -309,6 +309,18 @@ function hideMenu() {
   menu.style["display"] = "none";
 }
 
+function updateIconStyle(element, toggle) {
+  if (toggle) {
+    element.style.setProperty("background-color", "#ccc");
+    element.style.setProperty("box-shadow", "#333 0px 0px 5px inset");
+    element.style.setProperty("border-radius", "5px");
+  } else {
+    element.style.removeProperty("background-color");
+    element.style.removeProperty("box-shadow");
+    element.style.removeProperty("border-radius");
+  }
+}
+
 function applyStyle() {
   const elements = document.body.getElementsByTagName("*");
 
@@ -335,6 +347,10 @@ function applyStyle() {
         element.style.removeProperty("font-family");
       }
     }
+    updateIconStyle(
+      document.getElementById("icon-font"),
+      selectedFontIndex > 0
+    );
 
     if (isColorApplied) {
       if (bgColor) {
@@ -384,15 +400,14 @@ function applyStyle() {
         element.style.removeProperty("color");
       }
     }
+
+    updateIconStyle(document.getElementById("icon-color"), isColorApplied);
   }
 }
 
 // reset style
 function resetStyle() {
-  return;
   // color setting
-  bgColor = undefined;
-  textColor = undefined;
   isColorApplied = false;
 
   // font setting
@@ -419,13 +434,18 @@ function resetStyle() {
       const oldStyle = elementStyles[uuid];
       if (oldStyle) {
         const keys = Object.keys(oldStyle);
-        let styles = [];
         for (let i = 0; i < keys.length; i++) {
           const value = oldStyle[keys[i]];
-          styles.push(keys[i] + ": " + value);
+          if (value && value.includes(" !important")) {
+            element.style.setProperty(
+              keys[i],
+              value.replace(/\s\!important/g, ""),
+              "important"
+            );
+          } else {
+            element.style.setProperty(keys[i], value);
+          }
         }
-        console.log(styles);
-        element.style = styles.join(";");
       } else {
         element.removeAttribute("style");
       }
@@ -447,7 +467,6 @@ function uuidv4() {
 function settingClickHandle(prop) {
   if (prop === "font") {
     selectedFontIndex = (selectedFontIndex + 1) % APP_FONTS.length;
-    console.log(selectedFontIndex);
   } else if (prop === "fontSize") {
     selectedFontSizeIndex = (selectedFontSizeIndex + 1) % ZOOM_SETTINGS.length;
     console.log(selectedFontSizeIndex);
@@ -461,7 +480,6 @@ function settingClickHandle(prop) {
     console.log(selectedLineHeightIndex);
   } else if (prop === "color") {
     isColorApplied = !isColorApplied;
-    console.log(isColorApplied);
   }
 
   applyStyle();
