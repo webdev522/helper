@@ -272,6 +272,23 @@ function initElements() {
     }
   }
 
+  const { cssText } = document.body.style;
+  if (cssText) {
+    const styles = cssText.split(";");
+    const obj = {};
+    for (const style of styles) {
+      if (!style) continue;
+      const t = style.split(":");
+      const property = t[0].trim();
+      const value = t[1].trim();
+      if (property && value) {
+        obj[property] = value;
+      }
+    }
+
+    elementStyles["body"] = obj;
+  }
+
   console.log(elementStyles);
 }
 
@@ -385,10 +402,6 @@ function applyStyle() {
         element.style.removeProperty("font-family");
       }
     }
-    updateIconStyle(
-      document.getElementById("icon-font"),
-      selectedFontIndex > 0
-    );
 
     // update color
     if (isColorApplied) {
@@ -399,7 +412,7 @@ function applyStyle() {
         element.style.setProperty("color", textColor, "important");
       }
     } else {
-      if (bgColor && uuid && elementStyles[uuid]["background-color"]) {
+      if (uuid && elementStyles[uuid]["background-color"]) {
         const value = elementStyles[uuid]["background-color"];
         if (value && value.includes(" !important")) {
           element.style.setProperty(
@@ -414,7 +427,7 @@ function applyStyle() {
         element.style.removeProperty("background-color");
       }
 
-      if (textColor && uuid && elementStyles[uuid]["color"]) {
+      if (uuid && elementStyles[uuid]["color"]) {
         const value = elementStyles[uuid]["color"];
         if (value && value.includes(" !important")) {
           element.style.setProperty(
@@ -430,47 +443,77 @@ function applyStyle() {
       }
     }
 
-    updateIconStyle(document.getElementById("icon-color"), isColorApplied);
-
     // font size
     const newSize =
       elementStyles[uuid]["custom-font-size"] *
       ZOOM_SETTINGS[selectedFontSizeIndex];
 
     element.style.setProperty("font-size", newSize + "px", "important");
-    updateIconStyle(
-      document.getElementById("icon-size"),
-      selectedFontSizeIndex > 0
-    );
-
-    // letter spacing
-    updateIconStyle(
-      document.getElementById("icon-spacing"),
-      selectedLetterSpacingIndex > 0
-    );
-
-    // line height
-    updateIconStyle(
-      document.getElementById("icon-height"),
-      selectedLineHeightIndex > 0
-    );
-
-    // reader
-    if (isReaderStarted) {
-      const utter = new SpeechSynthesisUtterance(pageText);
-      utter.onend = function () {
-        isReaderStarted = false;
-        updateIconStyle(
-          document.getElementById("icon-reader"),
-          isReaderStarted
-        );
-      };
-      window.speechSynthesis.speak(utter);
-    } else {
-      window.speechSynthesis.cancel();
-    }
-    updateIconStyle(document.getElementById("icon-reader"), isReaderStarted);
   }
+
+  // body background
+  if (isColorApplied) {
+    if (bgColor) {
+      document.body.style.setProperty("background-color", bgColor, "important");
+    }
+  } else {
+    if (elementStyles["body"] && elementStyles["body"]["background-color"]) {
+      const value = elementStyles["body"]["background-color"];
+      if (value && value.includes(" !important")) {
+        document.body.style.setProperty(
+          "background-color",
+          value.replace(/\s\!important/g, ""),
+          "important"
+        );
+      } else {
+        document.body.style.setProperty("background-color", value);
+      }
+    } else if (elementStyles["body"] && elementStyles["body"]["background"]) {
+      const value = elementStyles["body"]["background"];
+      if (value && value.includes(" !important")) {
+        document.body.style.setProperty(
+          "background",
+          value.replace(/\s\!important/g, ""),
+          "important"
+        );
+      } else {
+        document.body.style.setProperty("background", value);
+      }
+    } else {
+      document.body.style.removeProperty("background");
+      document.body.style.removeProperty("background-color");
+    }
+  }
+
+  updateIconStyle(document.getElementById("icon-font"), selectedFontIndex > 0);
+  updateIconStyle(document.getElementById("icon-color"), isColorApplied);
+  updateIconStyle(
+    document.getElementById("icon-size"),
+    selectedFontSizeIndex > 0
+  );
+  // letter spacing
+  updateIconStyle(
+    document.getElementById("icon-spacing"),
+    selectedLetterSpacingIndex > 0
+  );
+
+  // line height
+  updateIconStyle(
+    document.getElementById("icon-height"),
+    selectedLineHeightIndex > 0
+  );
+  // reader
+  if (isReaderStarted) {
+    const utter = new SpeechSynthesisUtterance(pageText);
+    utter.onend = function () {
+      isReaderStarted = false;
+      updateIconStyle(document.getElementById("icon-reader"), isReaderStarted);
+    };
+    window.speechSynthesis.speak(utter);
+  } else {
+    window.speechSynthesis.cancel();
+  }
+  updateIconStyle(document.getElementById("icon-reader"), isReaderStarted);
 }
 
 // reset style
@@ -523,6 +566,24 @@ function resetStyle() {
             element.style.setProperty(keys[i], value);
           }
         }
+      }
+    }
+  }
+
+  if (elementStyles["body"]) {
+    const oldStyle = elementStyles["body"];
+    const keys = Object.keys(elementStyles["body"]);
+    for (let i = 0; i < keys.length; i++) {
+      const value = oldStyle[keys[i]];
+
+      if (value && value.includes(" !important")) {
+        document.body.style.setProperty(
+          keys[i],
+          value.replace(/\s\!important/g, ""),
+          "important"
+        );
+      } else {
+        document.body.style.setProperty(keys[i], value);
       }
     }
   }
