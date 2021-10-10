@@ -27,6 +27,10 @@ let selectedLineHeightIndex = 0;
 let letterSpacing = undefined;
 let selectedLetterSpacingIndex = 0;
 
+// reader setting
+let isReaderStarted = false;
+let pageText = "";
+
 const ICON_USER = `
 <svg width="43" height="43" viewBox="0 0 86 86" fill="none" xmlns="http://www.w3.org/2000/svg">
 <circle cx="43" cy="43" r="41" fill="#EA6B2D" stroke="white" stroke-width="4"/>
@@ -59,7 +63,7 @@ const HTML_SETTING_MENU = `
           </div>
         </div>
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 50%; height: 93px; border-bottom: 1px solid #b1b1b1; box-sizing: border-box;">
-          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('letterSpacing')">
+          <div id="icon-spacing" style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('letterSpacing')">
             <svg width="15" height="17" viewBox="0 0 31 35" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.1484 26.0938H7.85156L4.64062 35H0L13.0312 0.875H16.9688L30.0234 35H25.4062L22.1484 26.0938ZM9.21094 22.3906H20.8125L15 6.42969L9.21094 22.3906Z" fill="black"/>
             </svg>
@@ -81,7 +85,7 @@ const HTML_SETTING_MENU = `
           </div>
         </div>
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 50%; height: 93px; border-bottom: 1px solid #b1b1b1; box-sizing: border-box;">
-          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('lineHeight')">
+          <div id="icon-height" style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('lineHeight')">
             <svg width="15" height="17" viewBox="0 0 31 35" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.1484 26.0938H7.85156L4.64062 35H0L13.0312 0.875H16.9688L30.0234 35H25.4062L22.1484 26.0938ZM9.21094 22.3906H20.8125L15 6.42969L9.21094 22.3906Z" fill="black"/>
             </svg>
@@ -93,7 +97,7 @@ const HTML_SETTING_MENU = `
       </div>
       <div style="display: flex;">
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 50%; height: 93px; border-right: 1px solid #b1b1b1; box-sizing: border-box;">
-          <div style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;">
+          <div id="icon-reader" style="width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer;" onClick="settingClickHandle('reader')">
             <svg width="37" height="37" viewBox="0 0 75 75" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M54.075 65.6719C57.7805 61.9766 60.7193 57.5854 62.7223 52.7507C64.7254 47.9161 65.7533 42.7332 65.7468 37.5C65.7533 32.2668 64.7254 27.0839 62.7223 22.2493C60.7193 17.4146 57.7805 13.0234 54.075 9.32812L50.7562 12.6422C54.0259 15.9028 56.6189 19.7774 58.3862 24.0433C60.1536 28.3093 61.0604 32.8824 61.0547 37.5C61.0547 47.2078 57.1172 55.9969 50.7562 62.3578L54.075 65.6719Z" fill="black"/>
               <path d="M47.4422 59.0437C50.2757 56.2177 52.5229 52.8596 54.0545 49.1625C55.5862 45.4653 56.3721 41.5019 56.3672 37.5C56.3721 33.4981 55.5862 29.5347 54.0545 25.8375C52.5229 22.1404 50.2757 18.7823 47.4422 15.9563L44.1282 19.2703C46.5257 21.6616 48.4271 24.5031 49.7231 27.6316C51.019 30.76 51.684 34.1138 51.6797 37.5C51.6852 40.8867 51.0213 44.2411 49.7261 47.3704C48.431 50.4997 46.5301 53.3421 44.1329 55.7344L47.4422 59.0437Z" fill="black"/>
@@ -213,6 +217,7 @@ function catchStyles() {
 
 function initElements() {
   const elements = document.body.getElementsByTagName("*");
+  pageText = document.body.innerText;
 
   for (const element of elements) {
     const uuid = uuidv4();
@@ -225,6 +230,24 @@ function initElements() {
         .replace(/px/g, ""),
       10
     );
+
+    const spacing = parseInt(
+      window
+        .getComputedStyle(element, null)
+        .getPropertyValue("letter-spacing")
+        .replace(/px/g, ""),
+      10
+    );
+
+    const height = parseInt(
+      window
+        .getComputedStyle(element, null)
+        .getPropertyValue("line-height")
+        .replace(/px/g, ""),
+      10
+    );
+
+    console.log(spacing, height);
 
     const { cssText } = element.style;
     if (cssText) {
@@ -240,11 +263,11 @@ function initElements() {
         }
       }
 
-      obj["custom-font-size"] = size + "px";
+      obj["custom-font-size"] = size;
       elementStyles[uuid] = obj;
     } else {
       elementStyles[uuid] = {
-        "custom-font-size": size + "px",
+        "custom-font-size": size,
       };
     }
   }
@@ -339,9 +362,10 @@ function applyStyle() {
   const elements = document.body.getElementsByTagName("*");
 
   for (const element of elements) {
-    if (!element.dataset.uuid) continue;
-
     const { uuid } = element.dataset;
+    if (!uuid) continue;
+
+    // update font
     if (selectedFontIndex > 0) {
       const newFont = APP_FONTS[selectedFontIndex].replace(/\+/g, " ");
       element.style.setProperty("font-family", newFont, "important");
@@ -366,6 +390,7 @@ function applyStyle() {
       selectedFontIndex > 0
     );
 
+    // update color
     if (isColorApplied) {
       if (bgColor) {
         element.style.setProperty("background-color", bgColor, "important");
@@ -407,16 +432,44 @@ function applyStyle() {
 
     updateIconStyle(document.getElementById("icon-color"), isColorApplied);
 
+    // font size
     const newSize =
-      parseInt(elementStyles[uuid]["custom-font-size"].replace(/px/g, ""), 10) *
+      elementStyles[uuid]["custom-font-size"] *
       ZOOM_SETTINGS[selectedFontSizeIndex];
 
-    // console.log(size, newSize);
     element.style.setProperty("font-size", newSize + "px", "important");
     updateIconStyle(
       document.getElementById("icon-size"),
       selectedFontSizeIndex > 0
     );
+
+    // letter spacing
+    updateIconStyle(
+      document.getElementById("icon-spacing"),
+      selectedLetterSpacingIndex > 0
+    );
+
+    // line height
+    updateIconStyle(
+      document.getElementById("icon-height"),
+      selectedLineHeightIndex > 0
+    );
+
+    // reader
+    if (isReaderStarted) {
+      const utter = new SpeechSynthesisUtterance(pageText);
+      utter.onend = function () {
+        isReaderStarted = false;
+        updateIconStyle(
+          document.getElementById("icon-reader"),
+          isReaderStarted
+        );
+      };
+      window.speechSynthesis.speak(utter);
+    } else {
+      window.speechSynthesis.cancel();
+    }
+    updateIconStyle(document.getElementById("icon-reader"), isReaderStarted);
   }
 }
 
@@ -440,6 +493,10 @@ function resetStyle() {
   // letter spacing setting
   letterSpacing = undefined;
   selectedLetterSpacingIndex = 0;
+
+  // reader setting
+  isReaderStarted = false;
+  window.speechSynthesis.cancel();
 
   const elements = document.body.getElementsByTagName("*");
 
@@ -473,6 +530,9 @@ function resetStyle() {
   updateIconStyle(document.getElementById("icon-font"), false);
   updateIconStyle(document.getElementById("icon-color"), false);
   updateIconStyle(document.getElementById("icon-size"), false);
+  updateIconStyle(document.getElementById("icon-spacing"), false);
+  updateIconStyle(document.getElementById("icon-height"), false);
+  updateIconStyle(document.getElementById("icon-reader"), false);
 }
 
 // gen uuid v4
@@ -501,6 +561,8 @@ function settingClickHandle(prop) {
     console.log(selectedLineHeightIndex);
   } else if (prop === "color") {
     isColorApplied = !isColorApplied;
+  } else if (prop === "reader") {
+    isReaderStarted = !isReaderStarted;
   }
 
   applyStyle();
