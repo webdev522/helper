@@ -3,6 +3,7 @@ const SETTING_MENU_ID = "setting-menu";
 const SETTING_USER_ID = "setting-user";
 const APP_FONTS = ["", "Roboto", "Source+Sans+Pro"];
 const ZOOM_SETTINGS = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3];
+const LETTER_SPACINGS = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
 let elementStyles = {};
 
@@ -128,34 +129,12 @@ const HTML_SETTING_MENU = `
   </div>
 `;
 
-// window.onload = function () {};
-
 window.addEventListener("DOMContentLoaded", function () {
-  // applyStyle();
   catchStyles();
   initElements();
   addFonts();
   createMenu();
-  test();
 });
-
-function test() {
-  // font size = always with px
-  // line height = can with %
-  // text color = opposite or inherit value passed in the link
-  // letter spacing = TBD (normal 0 but always with px)
-  // change font = import multiple google font
-  // var el = document.getElementById("header");
-  // console.log(el.currentStyle);
-  // var size = window.getComputedStyle(el, null).getPropertyValue("font-size");
-  // var lineHeight = window
-  //   .getComputedStyle(el, null)
-  //   .getPropertyValue("line-height");
-  // var letterSpacing = window
-  //   .getComputedStyle(el, null)
-  //   .getPropertyValue("letter-spacing");
-  // console.log(size, lineHeight, letterSpacing);
-}
 
 function catchStyles() {
   const scripts = document.getElementsByTagName("script");
@@ -211,8 +190,6 @@ function catchStyles() {
   if (text && text.match(rgbRegex)) {
     textColor = text;
   }
-
-  console.log(bgColor, textColor);
 }
 
 function initElements() {
@@ -224,30 +201,12 @@ function initElements() {
     element.setAttribute("data-uuid", uuid);
 
     const size = parseInt(
-      window
+      document.defaultView
         .getComputedStyle(element, null)
         .getPropertyValue("font-size")
         .replace(/px/g, ""),
       10
     );
-
-    const spacing = parseInt(
-      window
-        .getComputedStyle(element, null)
-        .getPropertyValue("letter-spacing")
-        .replace(/px/g, ""),
-      10
-    );
-
-    const height = parseInt(
-      window
-        .getComputedStyle(element, null)
-        .getPropertyValue("line-height")
-        .replace(/px/g, ""),
-      10
-    );
-
-    console.log(spacing, height);
 
     const { cssText } = element.style;
     if (cssText) {
@@ -288,8 +247,6 @@ function initElements() {
 
     elementStyles["body"] = obj;
   }
-
-  console.log(elementStyles);
 }
 
 function addFonts() {
@@ -449,6 +406,48 @@ function applyStyle() {
       ZOOM_SETTINGS[selectedFontSizeIndex];
 
     element.style.setProperty("font-size", newSize + "px", "important");
+
+    // line height
+    if (selectedLineHeightIndex > 0) {
+      const newHeight = ZOOM_SETTINGS[selectedLineHeightIndex] * 100 + "%";
+      element.style.setProperty("line-height", newHeight, "important");
+    } else {
+      if (uuid && elementStyles[uuid]["line-height"]) {
+        const value = elementStyles[uuid]["line-height"];
+        if (value && value.includes(" !important")) {
+          element.style.setProperty(
+            "line-height",
+            value.replace(/\s\!important/g, ""),
+            "important"
+          );
+        } else {
+          element.style.setProperty("line-height", value);
+        }
+      } else {
+        element.style.removeProperty("line-height");
+      }
+    }
+
+    // letter spacing
+    if (selectedLetterSpacingIndex > 0) {
+      const newSpacing = LETTER_SPACINGS[selectedLetterSpacingIndex] * 2 + "px";
+      element.style.setProperty("letter-spacing", newSpacing, "important");
+    } else {
+      if (uuid && elementStyles[uuid]["letter-spacing"]) {
+        const value = elementStyles[uuid]["letter-spacing"];
+        if (value && value.includes(" !important")) {
+          element.style.setProperty(
+            "letter-spacing",
+            value.replace(/\s\!important/g, ""),
+            "important"
+          );
+        } else {
+          element.style.setProperty("letter-spacing", value);
+        }
+      } else {
+        element.style.removeProperty("letter-spacing");
+      }
+    }
   }
 
   // body background
@@ -485,24 +484,21 @@ function applyStyle() {
     }
   }
 
+  // update menu icon style
   updateIconStyle(document.getElementById("icon-font"), selectedFontIndex > 0);
   updateIconStyle(document.getElementById("icon-color"), isColorApplied);
   updateIconStyle(
     document.getElementById("icon-size"),
     selectedFontSizeIndex > 0
   );
-  // letter spacing
   updateIconStyle(
     document.getElementById("icon-spacing"),
     selectedLetterSpacingIndex > 0
   );
-
-  // line height
   updateIconStyle(
     document.getElementById("icon-height"),
     selectedLineHeightIndex > 0
   );
-  // reader
   if (isReaderStarted) {
     const utter = new SpeechSynthesisUtterance(pageText);
     utter.onend = function () {
@@ -614,12 +610,10 @@ function settingClickHandle(prop) {
     selectedFontSizeIndex = (selectedFontSizeIndex + 1) % ZOOM_SETTINGS.length;
   } else if (prop === "letterSpacing") {
     selectedLetterSpacingIndex =
-      (selectedLetterSpacingIndex + 1) % ZOOM_SETTINGS.length;
-    console.log(selectedLetterSpacingIndex);
+      (selectedLetterSpacingIndex + 1) % LETTER_SPACINGS.length;
   } else if (prop === "lineHeight") {
     selectedLineHeightIndex =
       (selectedLineHeightIndex + 1) % ZOOM_SETTINGS.length;
-    console.log(selectedLineHeightIndex);
   } else if (prop === "color") {
     isColorApplied = !isColorApplied;
   } else if (prop === "reader") {
