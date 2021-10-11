@@ -17,6 +17,10 @@ Colors are applied when use clicks "Background" button.
 `Roboto` & `Source Sans Pro` are being used in this module for now.
 Additional fonts can be added in `APP_FONTS` variable.
 
+- 0: element's font
+- 1: Roboto
+- 2: Source Sans Pro
+
 ## Font Size
 
 We have 9 options `ZOOM_SETTINGS` variable for font size.
